@@ -5,30 +5,37 @@ export default function RegisFormPage() {
   const [fname, setFname] = useState("");
   const [fnameError, setFnameError] = useState(false);
   const [lname, setLname] = useState("");
+  const [lnameError, setLnameError] = useState(false);
   const [plan, setPlan] = useState("");
+  const [planError, setPlanError] = useState(false);
   const [gender, setGender] = useState(null);
+  const [genderError, setGenderError] = useState(false);
   const [buyBottle, setBuyBottle] = useState(false);
   const [buyShoes, setBuyShoes] = useState(false);
   const [buyCap, setBuyCap] = useState(false);
-
+  const [isUserAgreed, SetIsUserAgreed] = useState("");
   const inputFnameOnChange = (event) => {
     setFnameError(false);
     setFname(event.target.value);
   };
 
   const inputLnameOnChange = (event) => {
+    setLnameError(false);
     setLname(event.target.value);
   };
 
   const selectPlanOnChange = (event) => {
+    setPlanError(false);
     setPlan(event.target.value);
   };
 
   const radioGenderMaleOnChange = () => {
+    setGenderError(false);
     setGender("male");
   };
 
   const radioGenderFemaleOnChange = () => {
+    setGenderError(false);
     setGender("female");
   };
 
@@ -43,7 +50,9 @@ export default function RegisFormPage() {
   const cbBuyCapOnChange = (event) => {
     setBuyCap(event.target.checked);
   };
-
+  const ConditionsOnChange = (event) => {
+    SetIsUserAgreed(event.target.checked);
+  };
   function computeTotalPayment() {
     let total = 0;
     if (plan === "funrun") total += 500;
@@ -53,18 +62,33 @@ export default function RegisFormPage() {
     if (buyBottle) total += 200;
     if (buyShoes) total += 600;
     if (buyCap) total += 400;
-
+    if (buyBottle && buyShoes && buyCap) total *= 80 / 100;
     return total;
   }
 
   const registerBtnOnClick = () => {
     let fnameOk = true;
+    let lnameOK = true;
+    let planOK = true;
+    let genderOK = true;
     if (fname === "") {
       fnameOk = false;
       setFnameError(true);
     }
+    if (lname === "") {
+      lnameOK = false;
+      setLnameError(true);
+    }
+    if (plan === "") {
+      planOK = false;
+      setPlanError(true);
+    }
+    if (gender === null) {
+      genderOK = false;
+      setGenderError(true);
+    }
 
-    if (fnameOk) {
+    if (fnameOk && lnameOK && planOK && genderOK) {
       alert(
         `Registration complete. Please pay money for ${computeTotalPayment().toLocaleString()} THB.`
       );
@@ -88,7 +112,7 @@ export default function RegisFormPage() {
         <div>
           <label className="form-label">Last name</label>
           <input
-            className="form-control"
+            className={"form-control" + (lnameError ? " is-invalid" : "")}
             onChange={inputLnameOnChange}
             value={lname}
           />
@@ -100,7 +124,7 @@ export default function RegisFormPage() {
       <div>
         <label className="form-label">Plan</label>
         <select
-          className="form-select"
+          className={"form-select" + (planError ? " is-invalid" : "")}
           onChange={selectPlanOnChange}
           value={plan}
         >
@@ -133,7 +157,9 @@ export default function RegisFormPage() {
           Female 👩
           {/* To show error when user did not select gender, */}
           {/* We just have to render the div below (Not using is-invalid bootstrap class) */}
-          {/* <div className="text-danger">Please select gender</div> */}
+          {genderError && (
+            <div className="text-danger">Please select gender</div>
+          )}
         </div>
       </div>
 
@@ -176,14 +202,20 @@ export default function RegisFormPage() {
       {/* Total Payment */}
       <div>
         Total Payment : {computeTotalPayment().toLocaleString()} THB
-        {/* Render below element conditionally when user get 20% discount */}
-        {/* <span className="text-success d-block">(20% Discounted)</span> */}
+        {buyBottle && buyShoes && buyCap && (
+          <span className="text-success d-block">(20% Discounted)</span>
+        )}
       </div>
 
       {/* Terms and conditions */}
       <div>
-        <input className="me-2" type="checkbox" />I agree to the terms and
-        conditions
+        <input
+          className="me-2"
+          type="checkbox"
+          onChange={ConditionsOnChange}
+          checked={isUserAgreed}
+        />
+        I agree to the terms and conditions
       </div>
 
       {/* Register Button */}
@@ -191,7 +223,7 @@ export default function RegisFormPage() {
         className="btn btn-success my-2"
         onClick={registerBtnOnClick}
         //You can embbed a state like below to disabled the button
-        //disabled={isUserAgreed}
+        disabled={!isUserAgreed}
       >
         Register
       </button>
